@@ -214,7 +214,6 @@ TextRefineAI 使用轻量级多阶段 Agent 流水线：
 Markdown / JSON 输出
 ```
 
-第一版没有引入复杂 Agent 框架，核心目标是保持系统简单、可测试、可扩展。
 
 ## 隐私说明
 
