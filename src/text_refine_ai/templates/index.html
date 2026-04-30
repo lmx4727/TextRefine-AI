@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>TextRefineAI WebUI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='app.css') }}">
+  </head>
+  <body>
+    <main class="shell">
+      <section class="topbar" aria-label="应用标题">
+        <div class="brand">
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 48 48" role="img">
+              <path d="M11 10.5A6.5 6.5 0 0 1 17.5 4h13A6.5 6.5 0 0 1 37 10.5v27A6.5 6.5 0 0 1 30.5 44h-13A6.5 6.5 0 0 1 11 37.5v-27Z"/>
+              <path d="M17 16h14M17 23h14M17 30h9"/>
+            </svg>
+          </span>
+          <div>
+            <p class="eyebrow">AI Text Refinement Studio</p>
+            <h1>TextRefineAI</h1>
+          </div>
+        </div>
+        <div class="status-pill" id="statusPill">
+          <span class="pulse"></span>
+          <span>Ready</span>
+        </div>
+      </section>
+
+      <section class="workspace" aria-label="文本转换工作台">
+        <form class="input-panel panel" id="refineForm">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Input</p>
+              <h2>原始文本</h2>
+            </div>
+            <label class="upload-button" title="上传 txt 或 md 文件">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4m0 0 4 4m-4-4-4 4M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+              上传文件
+              <input id="fileInput" name="file" type="file" accept=".txt,.md,text/plain,text/markdown">
+            </label>
+          </div>
+
+          <div class="file-chip" id="fileChip" hidden>
+            <span id="fileName">未选择文件</span>
+            <button type="button" id="clearFile" title="清除文件">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+            </button>
+          </div>
+
+          <textarea id="textInput" name="text" spellcheck="false" placeholder="粘贴语音转写、聊天记录或草稿文本。也可以上传 test.txt 这类文本文件。"></textarea>
+
+          <div class="controls-grid">
+            <fieldset>
+              <legend>输出类型</legend>
+              <div class="segmented" role="radiogroup" aria-label="输出类型">
+                <label><input type="radio" name="mode" value="minutes" checked><span>会议纪要</span></label>
+                <label><input type="radio" name="mode" value="dialogue"><span>对话稿</span></label>
+                <label><input type="radio" name="mode" value="report"><span>报告初稿</span></label>
+              </div>
+            </fieldset>
+
+            <fieldset>
+              <legend>模型</legend>
+              <div class="segmented" role="radiogroup" aria-label="模型 provider">
+                <label><input type="radio" name="provider" value="mock" checked><span>Mock</span></label>
+                <label><input type="radio" name="provider" value="real"><span>Real</span></label>
+              </div>
+            </fieldset>
+
+            <fieldset class="slider-field">
+              <legend>优化轮数</legend>
+              <div class="range-row">
+                <input id="refineRounds" name="refine_rounds" type="range" min="0" max="2" value="1">
+                <output id="roundOutput" for="refineRounds">1</output>
+              </div>
+            </fieldset>
+          </div>
+
+          <section class="config-panel" id="realConfig" aria-label="真实模型配置">
+            <div class="field">
+              <label for="apiKey">TEXTREFINE_API_KEY</label>
+              <input id="apiKey" name="api_key" type="password" autocomplete="off" placeholder="sk-...">
+            </div>
+            <div class="field">
+              <label for="baseUrl">TEXTREFINE_BASE_URL</label>
+              <input id="baseUrl" name="base_url" type="url" placeholder="https://api.openai.com/v1">
+            </div>
+            <div class="field">
+              <label for="model">TEXTREFINE_MODEL</label>
+              <input id="model" name="model" type="text" placeholder="gpt-4.1-mini">
+            </div>
+          </section>
+
+          <button class="primary-action" type="submit">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg>
+            开始转换
+          </button>
+        </form>
+
+        <section class="output-panel panel" aria-label="转换结果">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Output</p>
+              <h2>结构化结果</h2>
+            </div>
+            <div class="tabs" role="tablist" aria-label="结果视图">
+              <button class="tab active" type="button" data-tab="markdown">Markdown</button>
+              <button class="tab" type="button" data-tab="json">JSON</button>
+            </div>
+          </div>
+
+          <div class="progress-rail" id="progressRail" aria-hidden="true">
+            <span></span>
+          </div>
+
+          <article class="result-view active" id="markdownView">
+            <pre id="markdownOutput">转换完成后，Markdown 会显示在这里。</pre>
+          </article>
+          <article class="result-view" id="jsonView">
+            <pre id="jsonOutput">JSON 结果会显示在这里。</pre>
+          </article>
+
+          <div class="result-actions">
+            <button type="button" id="copyMarkdown" title="复制 Markdown">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 9h10v10H9z"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg>
+              复制 Markdown
+            </button>
+            <button type="button" id="downloadJson" title="下载 JSON">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4"/><path d="M5 21h14"/></svg>
+              下载 JSON
+            </button>
+          </div>
+        </section>
+      </section>
+    </main>
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+  </body>
+</html>

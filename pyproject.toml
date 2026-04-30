@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "text-refine-ai"
+version = "0.1.0"
+description = "AI agent pipeline for turning messy text into structured Markdown and JSON."
+requires-python = ">=3.12"
+dependencies = [
+    "click>=8.1",
+    "flask>=3.0",
+    "httpx>=0.27",
+    "pydantic>=2.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4",
+]
+
+[project.scripts]
+textrefine = "text_refine_ai.cli:main"
+textrefine-web = "text_refine_ai.web:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+text_refine_ai = ["templates/*.html", "static/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
