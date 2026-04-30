@@ -221,20 +221,3 @@ Markdown / JSON 输出
 默认情况下，系统只保存最终 Markdown 和 JSON 结果。
 
 CLI 和 WebUI 不会主动保存完整原文或中间 Prompt。使用真实模型时，文本会发送到你配置的模型服务，请根据实际 API 服务的隐私政策自行判断是否适合处理敏感文本。
-
-## 上传 GitHub 前建议
-
-建议不要上传以下内容：
-
-- `outputs/`
-- `webui.out.log`
-- `webui.err.log`
-- `__pycache__/`
-- `.pytest_cache/`
-- 本地虚拟环境或缓存目录
-
-可以在后续添加 `.gitignore` 来统一排除这些文件。
-
-## License
-
-本项目目前未指定开源协议。上传 GitHub 前可以根据需要选择 MIT、Apache-2.0 或其他协议。
